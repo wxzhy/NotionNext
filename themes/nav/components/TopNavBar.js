@@ -15,8 +15,31 @@ export default function TopNavBar(props) {
   const { className } = props
   const [isOpen, changeShow] = useState(false)
   const collapseRef = useRef(null)
+  const windowTopRef = useRef(0)
 
-  let windowTop = 0
+  const throttleMs = 200
+
+  // 使用useCallback确保scrollTrigger函数稳定
+  const scrollTrigger = useCallback(
+    throttle(() => {
+      const scrollS = window.scrollY
+      const nav = document.querySelector('#nav-bg')
+      const header = document.querySelector('#container-inner')
+
+      if (!nav || !header) return
+
+      const showNav = scrollS <= windowTopRef.current || scrollS < 5 || scrollS <= header.clientHeight
+
+      if (!showNav) {
+        nav.classList.replace('-top-20', 'top-0')
+      } else {
+        nav.classList.replace('top-0', '-top-20')
+      }
+
+      windowTopRef.current = scrollS
+    }, throttleMs),
+    []
+  )
 
   // 监听滚动
   useEffect(() => {
@@ -25,31 +48,11 @@ export default function TopNavBar(props) {
     return () => {
       window.removeEventListener('scroll', scrollTrigger)
     }
+  }, [scrollTrigger])
+
+  const toggleMenuOpen = useCallback(() => {
+    changeShow(prev => !prev)
   }, [])
-
-  const throttleMs = 200
-
-  const scrollTrigger = useCallback(
-    throttle(() => {
-      const scrollS = window.scrollY
-      const nav = document.querySelector('#nav-bg')
-      // const header = document.querySelector('#top-nav')
-      const header = document.querySelector('#container-inner')
-      const showNav =
-        scrollS <= windowTop || scrollS < 5 || scrollS <= header.clientHeight // 非首页无大图时影藏顶部 滚动条置顶时隐藏
-      if (!showNav) {
-        nav && nav.classList.replace('-top-20', 'top-0')
-        windowTop = scrollS
-      } else {
-        nav && nav.classList.replace('top-0', '-top-20')
-        windowTop = scrollS
-      }
-    }, throttleMs)
-  )
-
-  const toggleMenuOpen = () => {
-    changeShow(!isOpen)
-  }
 
   return (
     <div
@@ -85,7 +88,6 @@ export default function TopNavBar(props) {
 
           {/* 桌面端顶部菜单 */}
           <div className='hidden md:flex'>
-            {/* {links && links?.map((link, index) => <MenuItemDrop key={index} link={link} />)} */}
             <SearchInput className='my-3 rounded-full' />
             <DarkModeButton className='my-5 mr-6 text-sm flex items-center h-full pt-px' />
           </div>

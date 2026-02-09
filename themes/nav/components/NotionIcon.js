@@ -1,11 +1,12 @@
 import LazyImage from '@/components/LazyImage'
+import { memo } from 'react'
 
 /**
  * notion的图标icon
  * 可能是emoji 可能是 svg 也可能是 图片
  * @returns
  */
-const NotionIcon = ({ icon }) => {
+const NotionIcon = memo(({ icon }) => {
   let imgSize = 8
   let fontSize = ''
   if (!icon) {
@@ -17,6 +18,8 @@ const NotionIcon = ({ icon }) => {
   }
 
   return <span className={`mr-1 text-4xl`}>{icon}</span>
-}
+})
+
+NotionIcon.displayName = 'NotionIcon'
 
 export default NotionIcon

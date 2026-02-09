@@ -2,6 +2,7 @@ import { siteConfig } from '@/lib/config'
 import { isHttpLink } from '@/lib/utils'
 import SmartLink from '@/components/SmartLink'
 import { useRouter } from 'next/router'
+import { memo, useMemo } from 'react'
 import NotionIcon from './NotionIcon'
 
 /**
@@ -9,27 +10,36 @@ import NotionIcon from './NotionIcon'
  * @param {*} param0
  * @returns
  */
-const BlogPostCard = ({ post, className }) => {
+const BlogPostCard = memo(({ post, className }) => {
   const router = useRouter()
-  const currentSelected = router.asPath.split('?')[0] === '/' + post.slug
-  let pageIcon =
-    post.pageIcon !== ''
+
+  // 使用useMemo缓存计算结果
+  const currentSelected = useMemo(() => {
+    return router.asPath.split('?')[0] === '/' + post.slug
+  }, [router.asPath, post.slug])
+
+  const pageIcon = useMemo(() => {
+    const icon = post.pageIcon && post.pageIcon !== ''
       ? post.pageIcon
       : siteConfig('IMG_LAZY_LOAD_PLACEHOLDER')
-  pageIcon =
-    post.pageIcon.indexOf('amazonaws.com') !== -1
-      ? post.pageIcon + '&width=88'
-      : post.pageIcon
+    return icon && icon.indexOf && icon.indexOf('amazonaws.com') !== -1
+      ? icon + '&width=88'
+      : icon
+  }, [post.pageIcon])
+
+  const showIcon = useMemo(() => siteConfig('POST_TITLE_ICON'), [])
+  const linkTarget = useMemo(() => isHttpLink(post.slug) ? '_blank' : '_self', [post.slug])
+
   return (
     <SmartLink
       href={post?.href}
-      target={isHttpLink(post.slug) ? '_blank' : '_self'}
+      target={linkTarget}
       passHref>
       <div
         key={post.id}
         className={`${className} h-full rounded-2xl p-4 dark:bg-neutral-800 cursor-pointer bg-white hover:bg-white dark:hover:bg-gray-800 ${currentSelected ? 'bg-green-50 text-green-500' : ''}`}>
         <div className='stack-entry w-full flex space-x-3 select-none dark:text-neutral-200'>
-          {siteConfig('POST_TITLE_ICON') && (
+          {showIcon && (
             <NotionIcon
               icon={pageIcon}
               size='10'
@@ -46,6 +56,8 @@ const BlogPostCard = ({ post, className }) => {
       </div>
     </SmartLink>
   )
-}
+})
+
+BlogPostCard.displayName = 'BlogPostCard'
 
 export default BlogPostCard

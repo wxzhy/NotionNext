@@ -213,11 +213,31 @@ const LayoutIndex = props => {
  * @returns
  */
 const LayoutPostListIndex = props => {
-  // const { customMenu, children, post, allNavPages, categoryOptions, slotLeft, slotRight, slotTop, meta } = props
-  // const [filteredNavPages, setFilteredNavPages] = useState(allNavPages)
+  const { allNavPages } = props
+
+  // 获取about页面内容
+  const indexPageSlug = siteConfig('NAV_INDEX_PAGE', 'about', CONFIG)
+  const aboutPage = allNavPages?.find(page => page.slug === indexPageSlug)
+
   return (
     <>
       <Announcement {...props} />
+
+      {/* About页面内容 */}
+      {aboutPage?.blockMap && (
+        <section id='about-wrapper' className='mb-8 px-2'>
+          <NotionPage post={aboutPage} />
+        </section>
+      )}
+
+      {/* About页面评论区 */}
+      {aboutPage && siteConfig('COMMENT_ENABLE') && (
+        <div className='mb-8'>
+          <Comment frontMatter={aboutPage} />
+        </div>
+      )}
+
+      {/* 文章列表 */}
       <BlogPostListAll {...props} />
     </>
   )

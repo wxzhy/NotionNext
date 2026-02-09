@@ -1,9 +1,8 @@
 import BlogPostCard from './BlogPostCard'
-// import Collapse from '@/components/Collapse'
 
 /**
  * 导航列表
- * @param posts 所有文章
+ * @param posts所有文章
  * @param tags 所有标签
  * @returns {JSX.Element}
  * @constructor
