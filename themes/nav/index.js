@@ -213,32 +213,34 @@ const LayoutIndex = props => {
  * @returns
  */
 const LayoutPostListIndex = props => {
-  const { allNavPages } = props
+  const { allNavPages, indexPage } = props
 
-  // 获取about页面内容
+  // 优先使用getStaticProps中加载的indexPage（含blockMap），否则从allNavPages中查找
   const indexPageSlug = siteConfig('NAV_INDEX_PAGE', 'about', CONFIG)
-  const aboutPage = allNavPages?.find(page => page.slug === indexPageSlug)
+  const aboutPage = indexPage || allNavPages?.find(
+    page => page.slug === indexPageSlug || page.slug?.endsWith('/' + indexPageSlug)
+  )
 
   return (
     <>
       <Announcement {...props} />
 
-      {/* About页面内容 */}
+      {/* 文章列表 */}
+      <BlogPostListAll {...props} />
+
+      {/* 指定页面内容（位于导航列表下方） */}
       {aboutPage?.blockMap && (
         <section id='about-wrapper' className='mb-8 px-2'>
           <NotionPage post={aboutPage} />
         </section>
       )}
 
-      {/* About页面评论区 */}
-      {aboutPage && siteConfig('COMMENT_ENABLE') && (
+      {/* 指定页面评论区 - 根据页面comment属性开关 */}
+      {aboutPage?.blockMap && (
         <div className='mb-8'>
           <Comment frontMatter={aboutPage} />
         </div>
       )}
-
-      {/* 文章列表 */}
-      <BlogPostListAll {...props} />
     </>
   )
 }
@@ -257,7 +259,7 @@ const LayoutPostList = props => {
       <div className='w-full max-w-7xl mx-auto justify-center mt-8'>
         <div
           id='posts-wrapper'
-          class='card-list grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
+          className='card-list grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5'>
           {posts?.map(post => (
             <BlogPostCard key={post.id} post={post} className='card' />
           ))}

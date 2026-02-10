@@ -119,12 +119,22 @@ const NotionPage = ({ post, className }) => {
   // const cleanBlockMap = cleanBlocksWithWarn(post?.blockMap);
   // console.log('NotionPage render with post:', post);
 
+  // 清理blockMap中id为undefined的block，防止uuidToId报错
+  const recordMap = post?.blockMap
+  if (recordMap?.block) {
+    for (const key of Object.keys(recordMap.block)) {
+      if (!recordMap.block[key]?.value?.id) {
+        delete recordMap.block[key]
+      }
+    }
+  }
+
   return (
     <div
       id='notion-article'
       className={`mx-auto overflow-hidden ${className || ''}`}>
       <NotionRenderer
-        recordMap={post?.blockMap}
+        recordMap={recordMap}
         mapPageUrl={mapPageUrl}
         mapImageUrl={mapImgUrl}
         components={{

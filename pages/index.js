@@ -71,6 +71,27 @@ export async function getStaticProps(req) {
 
   // 生成全文索引 - 仅在 yarn build 时执行 && process.env.npm_lifecycle_event === 'build'
 
+  // 加载首页指定页面的内容（NAV等主题使用）
+  const indexPageSlug = process.env.NAV_INDEX_PAGE
+  if (indexPageSlug) {
+    // 先精确匹配slug，再尝试匹配末尾部分（兼容POST_URL_PREFIX如article/guide）
+    const indexPage = props.allPages?.find(
+      page => page.slug === indexPageSlug
+    ) || props.allPages?.find(
+      page => page.slug?.endsWith('/' + indexPageSlug)
+    )
+    if (indexPage) {
+      props.indexPage = {
+        id: indexPage.id,
+        title: indexPage.title || '',
+        slug: indexPage.slug,
+        comment: indexPage.comment || '',
+        pageIcon: indexPage.pageIcon || '',
+        blockMap: await getPostBlocks(indexPage.id, 'index-page')
+      }
+    }
+  }
+
   delete props.allPages
 
   return {
